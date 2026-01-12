@@ -236,5 +236,112 @@ from myfile import myPlugin
 #This can also take a tuple of plugins to add aswell, just like addSystem
 app.addPlugin(myPlugin)
 ```
+---
+### Resources:
+
+Resources are globally accessable components that are stored as part of the App() class and can be used by any system, anywhere.
+
+To create a resource you do.
+
+```python
+from ECSpy.Resource import Resource
+
+class myResource(Resource):
+    def __init__(self,myProperty : int):
+        super().__init__("myResource")
+        self.myProperty = myProperty
+```
+
+This is the same process as defining a componenet, but instead of inheriting from the base component class, you inherit from the base resource class.
+
+In order to use your resource, you must add it to the application by doing:
+
+```python
+#-- import mainApplication as app up here
+app.addResource(myResource)
+```
+
+To access your resource, you can then, inside of a system call
+
+```python
+#-- import mainApplication as app up here
+
+def mySystem():
+    x =app.getResource("myResource").myProperty
+```
+
+Like mutating component, to mutate a resource property you must also use the .mut() method:
+
+```python
+def mySystem():
+    app.getResource("myResource").mut("myProperty",1)
+```
+
+## Boilerplate
+### How to set up a basic window:
+
+Now that you know all of this, we can start making an actual application. We're going make a basic empty window, that you can expand on later. This is also the program inside the main.py file of the project, as a base. Note that this uses pygame-ce as its api for input and output. If you dont know anything about pygame check out https://pyga.me/docs/#tutorials
+
+---
+In order to make a window, were going to use the prelude module inside of ECSpy. This module does some basic pygame setup for us. Like starting up a basic event handler and initializing pygame.
+
+Lets start out with creating out games data. This data is what will be used by the prelude module, to create a window of your desired size.
+
+GameData is a resource so you have to import it first.
+
+```python
+from ECSpy.Prelude import GameData
+```
+
+Then you have to add the resource to your app. GameData takes 2 parameters, being screenSize->(width,height) and caption->"caption". These will be the size of the window (and its resolution) and the window caption.
+
+```python
+# -- import mainApplication as app here
+app.addResource(GameData(
+    screenSize = (300,300),
+    caption = "ECSpy"
+))
+```
+
+Now we've defined out game data. We can add the preludPlugin to our application, this plugin will create a Screen resource and a basic handleEvents system to create a window.
+
+```python
+# --import app and add gamedata up here
+from ECSpy.Prelude import preludePlugin
+
+app.addPlugin(preludePlugin)
+```
+
+the final piece is to call app.run() at the end 
+
+```python
+app.run()
+```
+
+If you run this now you should get a 300*300 black window!
+
+---
+### Explaining what we just did.
+
+What we now have is a Screen resource and an eventHandler system.
+
+By the handleEvents system can be found in ECSpy.Events and is
+
+```python
+def handleEvents():
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            exit()
+    app.getRescource("Clock").Clock.tick(60)
+```
+
+This both handles some basic events, add ticks the pygame clock.
+
+You can change this to fit your own needs however.
+
+The Screen resource has only one property, that being Screen.screen. screen being a the pygame Surface of our window.
+
+
+
 
 
